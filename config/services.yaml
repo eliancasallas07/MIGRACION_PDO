@@ -1,0 +1,36 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    App\:
+        resource: '../src/*'
+        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
+
+    PDOOrigen:
+        class: PDO
+        arguments:
+            - 'mysql:host=127.0.0.1;dbname=tiempos_importados;charset=utf8mb4'
+            - 'root'
+            - 'virtual2025'
+        calls:
+            - [ setAttribute, [3, 2] ] # ERRMODE_EXCEPTION
+            - [ setAttribute, [12, false] ] # ATTR_EMULATE_PREPARES = false
+        public: true
+
+    PDODestino:
+        class: PDO
+        arguments:
+            - 'mysql:host=127.0.0.1;dbname=tiempos_exportados;charset=utf8mb4'
+            - 'root'
+            - 'virtual2025'
+        calls:
+            - [ setAttribute, [3, 2] ]
+            - [ setAttribute, [12, false] ]
+        public: true
+
+    App\Service\DataMigrator:
+        arguments:
+            $pdoOrigen: '@PDOOrigen'
+            $pdoDestino: '@PDODestino'
